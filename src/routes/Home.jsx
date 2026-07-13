@@ -21,12 +21,15 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { db } from "../firebase";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Comments from "../components/Comments";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 
 function Home({ userId }) {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
+  const [attachment, setAttachment] = useState(null);
+  const fileInputRef = useRef(null);
   /*
   useEffect로 데이터를 조회 결과를 변수명 comments할당
   */
@@ -62,6 +65,21 @@ function Home({ userId }) {
       console.error("글 추가시 에러가 발생했습니다.", e);
     }
   };
+  const onFileChange = e => {
+    const file = e.target.files[0];
+
+    const reader = new FileReader();
+    reader.onload = e => {
+      setAttachment(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+  const onClearFile = () => {
+    setAttachment(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
   return (
     <>
       <Typography variant="h2" component="h2">
@@ -81,6 +99,31 @@ function Home({ userId }) {
           value={comment}
           onChange={handleChange}
         />
+        <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
+          <Button component="label" type="button" variant="outlined" startIcon={<UploadFileIcon />}>
+            이미지 선택
+            <input type="file" ref={fileInputRef} accept="images/*" onChange={onFileChange} />
+          </Button>
+          {attachment && (
+            <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
+              <Box
+                component="img"
+                src={attachment}
+                alt="미리보기"
+                sx={{
+                  width: 50,
+                  height: 50,
+                  objectFit: "cover",
+                  border: "1px solid #ddd",
+                  borderRadius: 3,
+                }}
+              ></Box>
+              <Button type="button" variant="contained" size="small" onClick={onClearFile}>
+                파일 첨부 취소
+              </Button>
+            </Box>
+          )}
+        </Box>
         <Button sx={{ mt: 2 }} type="submit" variant="contained">
           글쓰기
         </Button>
