@@ -1,10 +1,38 @@
-import { Box, Typography, TextField, Button, Divider } from "@mui/material";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Divider,
+  useScrollTrigger,
+  List,
+  ListItem,
+  ListItemText,
+} from "@mui/material";
+import { collection, addDoc, serverTimestamp, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function Home() {
   const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([]);
+  /*
+  useEffect로 데이터를 조회 결과를 변수명 comments할당
+  */
+  const getComments = async () => {
+    const q = query(collection(db, "comments"));
+
+    const querySnapshot = await getDocs(q);
+    console.log(querySnapshot);
+    const commentsArray = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setComments(commentsArray);
+  };
+
+  useEffect(() => {
+    getComments();
+  }, []);
+
+  console.log(comments);
 
   const handleChange = e => {
     setComment(e.target.value);
@@ -34,7 +62,7 @@ function Home() {
           label="Comment"
           placeholder="글을 입력해주세요."
           type="text"
-          name="email"
+          name="comment"
           variant="outlined"
           multiline
           rows={5}
@@ -44,8 +72,15 @@ function Home() {
         <Button sx={{ mt: 2 }} type="submit" variant="contained">
           글쓰기
         </Button>
-        <Divider sx={{ my: 3 }} />
       </Box>
+      <Divider sx={{ my: 3 }} />
+      <List sx={{ width: "100%", bgcolor: "background.paper" }}>
+        {comments.map(item => (
+          <ListItem key={item.id} alignItems="flex-start" divider>
+            <ListItemText primary={item.comment} secondary={item.date.toDate().toLocaleString()} />
+          </ListItem>
+        ))}
+      </List>
     </>
   );
 }
