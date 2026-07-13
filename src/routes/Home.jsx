@@ -22,8 +22,9 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { useEffect, useState } from "react";
+import Comments from "../components/Comments";
 
-function Home() {
+function Home({ userId }) {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
   /*
@@ -43,8 +44,6 @@ function Home() {
     getComments();
   }, []);
 
-  console.log(comments);
-
   const handleChange = e => {
     setComment(e.target.value);
   };
@@ -55,6 +54,7 @@ function Home() {
         // comment: comment,
         comment,
         date: serverTimestamp(),
+        uid: userId,
       });
       setComment("");
       // getComments();
@@ -86,16 +86,9 @@ function Home() {
         </Button>
       </Box>
       <Divider sx={{ my: 3 }} />
-      <List sx={{ width: "100%", bgcolor: "background.paper" }}>
+      <List sx={{ width: "100%" }}>
         {comments.map(item => (
-          <ListItem key={item.id} alignItems="flex-start" divider>
-            <ListItemText
-              primary={item.comment}
-              secondary={
-                item.date?.toDate() ? item.date.toDate().toLocaleString() : "작성시간 없음"
-              }
-            />
-          </ListItem>
+          <Comments key={item.id} item={item} isShown={userId === item.uid} />
         ))}
       </List>
     </>
