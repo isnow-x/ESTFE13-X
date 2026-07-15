@@ -117,7 +117,13 @@ function Home({ userId }) {
         <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
           <Button component="label" type="button" variant="outlined" startIcon={<UploadFileIcon />}>
             이미지 선택
-            <input type="file" ref={fileInputRef} accept="images/*" onChange={onFileChange} />
+            <input
+              type="file"
+              hidden
+              ref={fileInputRef}
+              accept="images/*"
+              onChange={onFileChange}
+            />
           </Button>
           {attachment && (
             <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
